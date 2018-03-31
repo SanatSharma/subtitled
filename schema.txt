@@ -1,0 +1,27 @@
+
+Schema for Data transfer between client and server
+
+Leader Client
+    1) Connection with server
+            {
+                "session": session,
+                "type": "leader_add"
+            }
+    2) Sending Data to server
+            {
+                "session": session,
+                "type": "message",
+                "data": data
+            }
+
+Member Client   
+    1) Connection with server   
+            {
+                "session": session,
+                "type": "member_add"
+            }
+    2) Data received from server    
+            {
+                "type": "message",
+                "data": data
+            }
