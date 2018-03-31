@@ -1,0 +1,21 @@
+body {
+    font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.center {
+    text-align: center;
+    margin: 0 auto;
+}
+.subtitle-node {
+    display: inline-block;
+    background-color: black;
+    margin: .2rem;
+    padding: .2rem .4rem;
+    font-size: 1.5rem;
+    color: white;
+}
+.subtitle-node-hypothesis {
+    color: #d1d1d1;
+    background-color: #666666;
+}
