@@ -6,19 +6,17 @@
 </head>
 <body style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px;">
     <div id="warning">
-        <h1 style="font-weight:500;">Speech Recognition SDK not found.</h1>
-        <h2 style="font-weight:500;">Please execute <code>npm run bundle</code> and reload.</h2>
+        <h1 style="font-weight:500;">Loading...</h1>
     </div>
     <div id="content" style="display:none">
         <table width="100%">
             <tr>
                 <td></td>
                 <td>
-                    <h1 style="font-weight:500;">Speech Recognition</h1>
-                    <h2 style="font-weight:500;">Microsoft Cognitive Services</h2>
+                    <h1 style="font-weight:500;">Welcome to Subtitled</h1>
                 </td>
             </tr>
-            <tr>
+            <tr style="display:none">
                 <td align="right"><a href="https://www.microsoft.com/cognitive-services/en-us/sign-up" target="_blank">Subscription</a>:</td>
                 <td><input id="key" type="text" size="40" value="YOUR_BING_SPEECH_API_KEY" style="display:none"></td>
             </tr>
@@ -57,16 +55,6 @@
                         <option value="zh-CN">Chinese - CN</option>
                         <option value="zh-HK">Chinese - HK</option>
                         <option value="zh-TW">Chinese - TW</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td align="right">Recognition Mode:</td>
-                <td align="left">
-                    <select id="recognitionMode">
-                        <option value="Interactive">Interactive</option>
-                        <option value="Conversation">Conversation</option>
-                        <option value="Dictation">Dictation</option>
                     </select>
                 </td>
             </tr>
@@ -128,7 +116,8 @@
         
         // Setup the recognizer
         function RecognizerSetup(SDK, recognitionMode, language, format, subscriptionKey) {
-            
+            recognitionMode = SDK.RecognitionMode.Dictation;
+            /*
             switch (recognitionMode) {
                 case "Interactive" :
                     recognitionMode = SDK.RecognitionMode.Interactive;    
@@ -141,7 +130,7 @@
                     break;
                 default:
                     recognitionMode = SDK.RecognitionMode.Interactive;
-            }
+            }*/
 
             var recognizerConfig = new SDK.RecognizerConfig(
                 new SDK.SpeechConfig(
@@ -252,7 +241,7 @@
     <!-- Browser Hooks -->
     <script>
         var startBtn, stopBtn, hypothesisDiv, phraseDiv, statusDiv;
-        var key, languageOptions, formatOptions, recognitionMode;
+        var key, languageOptions, formatOptions;
         var SDK;
         var recognizer;
         var previousSubscriptionKey;
@@ -267,11 +256,9 @@
             key = document.getElementById("key");
             languageOptions = document.getElementById("languageOptions");
             formatOptions = document.getElementById("formatOptions");
-            recognitionMode = document.getElementById("recognitionMode");
 
             languageOptions.addEventListener("change", Setup);
             formatOptions.addEventListener("change", Setup);
-            recognitionMode.addEventListener("change", Setup);
 
             startBtn.addEventListener("click", function () {
                 if (key.value == "" || key.value == "YOUR_BING_SPEECH_API_KEY") {
@@ -319,7 +306,7 @@
             if (recognizer != null) {
                 RecognizerStop(SDK, recognizer);
             }
-            recognizer = RecognizerSetup(SDK, recognitionMode.value, languageOptions.value, SDK.SpeechResultFormat[formatOptions.value], key.value);
+            recognizer = RecognizerSetup(SDK, null, languageOptions.value, SDK.SpeechResultFormat[formatOptions.value], key.value);
         }
 
         function UpdateStatus(status) {
