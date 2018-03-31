@@ -19,3 +19,7 @@ body {
     color: #d1d1d1;
     background-color: #666666;
 }
+.mic {
+    width: 60px;
+    display: block;
+}

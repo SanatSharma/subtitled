@@ -49,6 +49,10 @@
             <option value="zh-TW">Chinese - TW</option>
         </select>
 
+        <div class"center">
+            <img src="/static/mic_black.png" class="mic center" id="mic_black" />
+            <img src="/static/mic_red.png" class="mic center" id="mic_red" style="display: none"/>
+        </div>
         <button id="startBtn" disabled="disabled">Start</button>
         <button id="stopBtn" disabled="disabled">Stop</button>
         <div>
@@ -254,6 +258,7 @@
         var SDK;
         var recognizer;
         var previousSubscriptionKey;
+        var mic_black, mic_red;
 
         document.addEventListener("DOMContentLoaded", function () {
             createBtn = document.getElementById("createBtn");
@@ -266,6 +271,29 @@
             languageOptions = document.getElementById("languageOptions");;
 
             languageOptions.addEventListener("change", Setup);
+
+            mic_black = document.getElementById("mic_black");
+            mic_red = document.getElementById("mic_red");
+
+            mic_black.addEventListener("click", function () {
+                if (!recognizer || previousSubscriptionKey != key.value) {
+                    previousSubscriptionKey = key.value;
+                    Setup();
+                }
+
+                hypothesisDiv.innerHTML = "";
+                phraseDiv.innerHTML = "";
+                RecognizerStart(SDK, recognizer);
+
+                mic_black.style.display = "none";
+                mic_red.style.display = "block";
+            });
+
+            mic_red.addEventListener("click", function () {
+                RecognizerStop(SDK, recognizer);
+                mic_red.style.display = "none";
+                mic_black.style.display = "block";
+            });
 
             startBtn.addEventListener("click", function () {
                 /*if (key.value == "" || key.value == "YOUR_BING_SPEECH_API_KEY") {
