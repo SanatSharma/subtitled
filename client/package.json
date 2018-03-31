@@ -4,6 +4,7 @@
   "main": "sample-server.js",
   "dependencies": {
     "localtunnel": "^1.8.3",
-    "qrcode-terminal": "^0.11.0"
+    "qrcode-terminal": "^0.11.0",
+    "ws": "^5.1.0"
   }
 }
