@@ -220,20 +220,20 @@
                         break;
                     case "SpeechStartDetectedEvent" :
                         UpdateStatus("Listening_DetectedSpeech_Recognizing");
-                        console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
                         break;
                     case "SpeechHypothesisEvent" :
                         UpdateRecognizedHypothesis(event.Result.Text, false);
-                        console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
                         break;
                     case "SpeechFragmentEvent" :
                         UpdateRecognizedHypothesis(event.Result.Text, true);
-                        console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
                         break;
                     case "SpeechEndDetectedEvent" :
                         OnSpeechEndDetected();
                         UpdateStatus("Processing_Adding_Final_Touches");
-                        console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
                         break;
                     case "SpeechSimplePhraseEvent" :
                         UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
@@ -246,10 +246,10 @@
                     case "RecognitionEndedEvent" :
                         OnComplete();
                         UpdateStatus("Idle");
-                        console.log(JSON.stringify(event)); // Debug information
+                        //console.log(JSON.stringify(event)); // Debug information
                         break;
                     default:
-                        console.log(JSON.stringify(event)); // Debug information
+                        //console.log(JSON.stringify(event)); // Debug information
                 }
             })
             .On(() => {
@@ -420,9 +420,10 @@
 
             ws.onmessage = function ws_input(input){
                 console.log("Received a message - " + input);
-                var data = input.data;
+                var data = JSON.parse(input.data)
+                console.log(data)
 
-                UpdateRecognizedPhrase(data);
+                UpdateRecognizedPhrase(data['data']);
             }
         }
         else{
@@ -430,11 +431,13 @@
         }
 
         function sendResult(data){
-            console.log("Sending result ")
+            console.log("Sending result - " + data)
+            val = JSON.parse(data);
+        
             ws.send(JSON.stringify({
                 "session": SESSION,
                 "type": "message",
-                "data": data
+                "data": val['DisplayText']
             }));
         }
     </script>
