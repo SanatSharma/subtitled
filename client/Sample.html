@@ -6,7 +6,18 @@
     <style>    
     body {
             font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
-            font-size: 13px;
+        }
+        .subtitle-node {
+            display: inline-block;
+            background-color: black;
+            margin: .2rem;
+            padding: .2rem .4rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+        .subtitle-node-hypothesis {
+            color: #d1d1d1;
+            background-color: #666666;
         }
     </style>
 </head>
@@ -61,8 +72,50 @@
         </div>
 
         <div id="output"></div>
+        <div id="hypothesis"></div>
         <script>
-            output_target = document.getElementById("output");
+            var OutputHandler = {};
+            OutputHandler.outputTarget = document.getElementById("output");
+            OutputHandler.hypothesisTarget = document.getElementById("hypothesis");
+
+            OutputHandler.buildSubtitleNode = function(text) {
+                var node = document.createElement("div");
+                node.classList.add("subtitle-node");
+                node.textContent = text;
+                return node;
+            }
+
+            OutputHandler.addSubtitleLine = function(text) {
+                if (text) {
+                    OutputHandler.outputTarget.appendChild(OutputHandler.buildSubtitleNode(text));
+                }
+            }
+
+            OutputHandler.appendHypothesis = function(text) {
+                if (OutputHandler.hypothesisTarget.children.length === 0) {
+                    var node = OutputHandler.buildSubtitleNode("");
+                    OutputHandler.hypothesisTarget.innerHTML = "";
+                    node.classList.add("subtitle-node-hypothesis");
+                    OutputHandler.hypothesisTarget.appendChild(node);
+                }
+
+                var oldNode = OutputHandler.hypothesisTarget.children[0];
+                var oldText = oldNode.textContent;
+
+                if (oldText === "")
+                    oldNode.textContent = text;
+                else
+                    oldNode.textContent += " " + text;
+            }
+
+            OutputHandler.resetHypothesis = function() {
+                OutputHandler.hypothesisTarget.innerHTML = "";
+            }
+
+            /*addSubtitleLine("Helllo world");
+            addSubtitleLine("this is the end of the world");
+            addSubtitleLine("Goodbye world");
+            addSubtitleLine("This is a very long line compared to the others. Maybe the speaker is having a monologue.");*/
         </script>
 
     </div>
@@ -282,15 +335,10 @@
         }
 
         function UpdateRecognizedHypothesis(text, append) {
-            if (append) 
-                hypothesisDiv.innerHTML += text + " ";
-            else 
-                hypothesisDiv.innerHTML = text;
+            if (!append)
+                OutputHandler.resetHypothesis();
 
-            var length = hypothesisDiv.innerHTML.length;
-            if (length > 403) {
-                hypothesisDiv.innerHTML = "..." + hypothesisDiv.innerHTML.substr(length-400, length);
-            }
+            OutputHandler.appendHypothesis(text);
         }
 
         function OnSpeechEndDetected() {
@@ -298,8 +346,11 @@
         }
 
         function UpdateRecognizedPhrase(json) {
-            hypothesisDiv.innerHTML = "";
+            OutputHandler.resetHypothesis();
             phraseDiv.innerHTML += json + "\n";
+
+            var textObj = JSON.parse(json);
+            OutputHandler.addSubtitleLine(textObj["DisplayText"]);
         }
 
         function OnComplete() {
