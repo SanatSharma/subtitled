@@ -3,6 +3,65 @@
 <head>
     <title>Speech Sample</title>
     <meta charset="utf-8" />
+    <script>
+
+        // token to decide leader vs member
+        const TOKEN = "leader"; //change this
+        const PROD_URI = "" //aws url
+
+        var ws;
+
+        var token = TOKEN;
+        ws = new WebSocket(PROD_URI)
+
+        if(token == "leader"){ //change this
+            
+            ws.onerror = function(e){
+				alert("Could not connect to server");
+            }
+            
+            ws.onopen = function(e) {
+                ws.send(JSON.stringify({
+                    session: SESSION,
+                    type: "leader_add",
+                }));
+            //    statusBar.textContent = "Connected!";
+            }
+
+            ws.onclose = function(e){
+                //statusBar.textContent = "Disconnected!";
+            }
+				
+        }
+        else if(token == "member"){
+            ws.onerror = function(e){
+				alert("Could not connect to server");
+            }
+            
+            ws.onopen = function(e) {
+                ws.send(JSON.stringify({
+                    session: SESSION,
+                    type: "member_add",
+                }));
+            //    statusBar.textContent = "Connected!";
+            }
+
+            ws.onclose = function(e){
+                //statusBar.textContent = "Disconnected!";
+            }
+
+            ws.onmessage = function ws_input(input){
+                console.log("Received a message - " + input);
+                var data = input.data;
+
+                UpdateRecognizedPhrase(data);
+            }
+        }
+        else{
+            console.log("There's something wrong");
+        }
+    </script>
+
 </head>
 <body style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px;">
     <div id="warning">
