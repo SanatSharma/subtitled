@@ -65,6 +65,12 @@
     <style>
         body {
             font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .center {
+            text-align: center;
+            margin: 0 auto;
         }
         .subtitle-node {
             display: inline-block;
@@ -84,7 +90,7 @@
     <div id="warning">
         <h1 style="font-weight:500;">Loading...</h1>
     </div>
-    <h1>Welcome to Subtitled</h1>
+    <div class="center"><h1>Welcome to Subtitled</h1></div>
     <div id="content" style="display:none">
         <input id="key" type="text" size="40" value="YOUR_BING_SPEECH_API_KEY" style="display:none">
         <select id="languageOptions">
