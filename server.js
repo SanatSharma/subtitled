@@ -26,13 +26,30 @@ wss.on('connection', function connection(ws,req){
         if(isJson(data)){
             var obj = JSON.parse(data);
             var keys = Object.keys(sessions);
+            var check = false;
             keys.forEach(function(session){
                 if(sessions[session]==ws){
                     console.log("Found leader. Closing chat room");
                     delete sessions[session];
+                    check = true;
                     delete conn[session];
                 }
             });
+
+            if (!check){
+                var keys = Object.keys(conn);
+                keys.forEach(function(session){
+                    d = conn[session];
+                    for (a in d){
+                        if (d[a]==ws){
+                            console.log("remove member");
+                            check =true;
+                            ws.close();
+                            d.splice(a,1);
+                        }
+                    }
+                });
+            }
         }
         else{
             console.log("Data is not JSON");
