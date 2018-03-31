@@ -61,7 +61,7 @@ wss.on('connection', function connection(ws,req){
                     for(var i in clients){
                         client = clients[i];
                         console.log("Sending message");
-                        ws.send(JSON.stringify({
+                        client.send(JSON.stringify({
                             type: "message",
                             data: obj.data
                         }));

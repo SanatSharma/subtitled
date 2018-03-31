@@ -3,67 +3,8 @@
 <head>
     <title>Speech Sample</title>
     <meta charset="utf-8" />
-    <script>
-
-        // token to decide leader vs member
-        const TOKEN = "leader"; //change this
-        const PROD_URI = "" //aws url
-
-        var ws;
-
-        var token = TOKEN;
-        ws = new WebSocket(PROD_URI)
-
-        if(token == "leader"){ //change this
-            
-            ws.onerror = function(e){
-				alert("Could not connect to server");
-            }
-            
-            ws.onopen = function(e) {
-                ws.send(JSON.stringify({
-                    session: SESSION,
-                    type: "leader_add",
-                }));
-            //    statusBar.textContent = "Connected!";
-            }
-
-            ws.onclose = function(e){
-                //statusBar.textContent = "Disconnected!";
-            }
-				
-        }
-        else if(token == "member"){
-            ws.onerror = function(e){
-				alert("Could not connect to server");
-            }
-            
-            ws.onopen = function(e) {
-                ws.send(JSON.stringify({
-                    session: SESSION,
-                    type: "member_add",
-                }));
-            //    statusBar.textContent = "Connected!";
-            }
-
-            ws.onclose = function(e){
-                //statusBar.textContent = "Disconnected!";
-            }
-
-            ws.onmessage = function ws_input(input){
-                console.log("Received a message - " + input);
-                var data = input.data;
-
-                UpdateRecognizedPhrase(data);
-            }
-        }
-        else{
-            console.log("There's something wrong");
-        }
-    </script>
-
-    <style>
-        body {
+    <style>    
+    body {
             font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
             max-width: 600px;
             margin: 0 auto;
@@ -90,7 +31,10 @@
     <div id="warning">
         <h1 style="font-weight:500;">Loading...</h1>
     </div>
-    <div class="center"><h1>Welcome to Subtitled</h1></div>
+    <div class="center">
+        <p id="statusBar">Connecting....</p> 
+        <h1>Welcome to Subtitled</h1>
+    </div>
     <div id="content" style="display:none">
         <input id="key" type="text" size="40" value="YOUR_BING_SPEECH_API_KEY" style="display:none">
         <select id="languageOptions">
@@ -293,9 +237,11 @@
                         break;
                     case "SpeechSimplePhraseEvent" :
                         UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
+                        sendResult(JSON.stringify(event.Result, null, 3))
                         break;
                     case "SpeechDetailedPhraseEvent" :
                         UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
+                        sendResult(JSON.stringify(event.Result, null, 3))
                         break;
                     case "RecognitionEndedEvent" :
                         OnComplete();
@@ -319,6 +265,8 @@
             // recognizer.AudioSource.Detach(audioNodeId) can be also used here. (audioNodeId is part of ListeningStartedEvent)
             recognizer.AudioSource.TurnOff();
         }
+
+        
     </script>
 
     <!-- Browser Hooks -->
@@ -418,5 +366,78 @@
             stopBtn.disabled = true;
         }
     </script>
+
+    
+    <script>
+
+        // token to decide leader vs member
+        const TOKEN = "member"; //change this
+        const PROD_URI = ""; //aws url
+        var statusBar = document.getElementById("statusBar");
+        const SESSION = '1';
+
+        var ws;
+
+        var token = TOKEN;
+    //     ws = new WebSocket(PROD_URI)
+        ws = new WebSocket("ws://localhost:2000")
+        if(token == "leader"){ //change this
+            
+            ws.onerror = function(e){
+                alert("Could not connect to server");
+            }
+            
+            ws.onopen = function(e) {
+                console.log("Connected with web socket!");
+                ws.send(JSON.stringify({
+                    session: SESSION,
+                    type: "leader_add",
+                }));
+                statusBar.textContent = "Connected!";
+            }
+
+            ws.onclose = function(e){
+                statusBar.textContent = "Disconnected!";
+            }
+                
+        }
+        else if(token == "member"){
+            ws.onerror = function(e){
+                alert("Could not connect to server");
+            }
+            
+            ws.onopen = function(e) {
+                ws.send(JSON.stringify({
+                    session: SESSION,
+                    type: "member_add",
+                }));
+                statusBar.textContent = "Connected!";
+            }
+
+            ws.onclose = function(e){
+                statusBar.textContent = "Disconnected!";
+            }
+
+            ws.onmessage = function ws_input(input){
+                console.log("Received a message - " + input);
+                var data = input.data;
+
+                UpdateRecognizedPhrase(data);
+            }
+        }
+        else{
+            console.log("There's something wrong");
+        }
+
+        function sendResult(data){
+            console.log("Sending result ")
+            ws.send(JSON.stringify({
+                "session": SESSION,
+                "type": "message",
+                "data": data
+            }));
+        }
+    </script>
+
 </body>
 </html>
