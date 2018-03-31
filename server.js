@@ -6,7 +6,7 @@ const express = require('express')
     conn  = {session: [ws,ws,ws]}
     */
 
-const wss = new WebSocket.Server({port:4000});
+const wss = new WebSocket.Server({port:2000});
 var sessions = {};
 var conn = {};
 
@@ -18,6 +18,24 @@ wss.on('connection', function connection(ws,req){
     console.log("Added client!");
     ws.on("error", function(error) {
         console.log('WebSocket Error: ' + error);
+    });
+
+    ws.on("close", function ws_close(data){
+        console.log("removing client");
+        if(isJson(data)){
+            var obj = JSON.parse(data);
+            var keys = Object.keys(sessions);
+            keys.forEach(function(session){
+                if(sessions[session]==ws){
+                    console.log("Found leader. Closing chat room");
+                    delete sessions[session];
+                    delete conn[session];
+                }
+            });
+        }
+        else{
+            console.log("Data is not JSON");
+        }
     });
 
     ws.on("message", function ws_message(data){
