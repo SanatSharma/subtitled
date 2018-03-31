@@ -6,7 +6,14 @@
     <style>
         body {
             font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
-            font-size: 13px;
+        }
+        .subtitle-node {
+            display: inline-block;
+            background-color: black;
+            margin: .2rem;
+            padding: .2rem .4rem;
+            font-size: 1.5rem;
+            color: white;
         }
     </style>
 </head>
@@ -61,7 +68,26 @@
 
         <div id="output"></div>
         <script>
-            output_target = document.getElementById("output");
+            var output_target = document.getElementById("output");
+
+            function buildSubtitleNode(text) {
+                var node = document.createElement("div");
+                node.classList.add("subtitle-node");
+                node.textContent = text;
+                return node;
+            }
+
+            function addSubtitleLine(text) {
+                if (text) {
+                    output_target.appendChild(buildSubtitleNode(text));
+                }
+                //output_target.appendChild(document.createElement("br"));
+            }
+
+            /*addSubtitleLine("Helllo world");
+            addSubtitleLine("this is the end of the world");
+            addSubtitleLine("Goodbye world");
+            addSubtitleLine("This is a very long line compared to the others. Maybe the speaker is having a monologue.");*/
         </script>
 
     </div>
@@ -295,6 +321,9 @@
         function UpdateRecognizedPhrase(json) {
             hypothesisDiv.innerHTML = "";
             phraseDiv.innerHTML += json + "\n";
+
+            var textObj = JSON.parse(json);
+            addSubtitleLine(textObj["DisplayText"]);
         }
 
         function OnComplete() {
