@@ -30,7 +30,27 @@ wss.on('connection', function connection(ws,req){
             }
             else if (obj.type=="member_add"){
                 if (obj.session in conn){
-                    conn[obj.session].push(ws)
+                    console.log("Adding client");
+                    conn[obj.session].push(ws);
+                }
+                else{
+                    console.log("Could not add client. No session");
+                }
+            }
+            else if (obj.type=="message"){
+                if (obj.session in sessions && sessions[obj.session]==ws){
+                    clients = conn[obj.session];
+                    for(var i in clients){
+                        client = clients[i];
+                        console.log("Sending message");
+                        ws.send(JSON.stringify({
+                            type: "message",
+                            data: obj.data
+                        }));
+                    }
+                }
+                else{
+                    console.log("Sender not identified")
                 }
             }
         }
