@@ -1,5 +1,6 @@
 const WebSocket = require('ws')
 const express = require('express')
+const fs = require('fs');
 
 /* Current Implementation
     sessions = {session: leader_ws}
@@ -91,6 +92,7 @@ wss.on('connection', function connection(ws,req){
         }
     });
 });
+
 function isJson(str) {
     try {
         console.log(str);
@@ -100,4 +102,28 @@ function isJson(str) {
         return false;
     }
     return true;
-  }
+}
+
+var key = (function() {
+    var keyFile = __dirname + '/speech.key';
+    var key;
+    if (fs.existsSync(keyFile) && (key = fs.readFileSync(keyFile, 'utf8'))) {
+        key = key.replace(/\s/g, "");
+        if (key) return key;
+    }
+
+    console.log("Please provide an API key in speech.key");
+    process.exit(0);
+})();
+
+/* Express */
+const app = express();
+const pages = {
+    room: fs.readFileSync(__dirname + '/client/index.html', 'utf8')
+        .replace("YOUR_BING_SPEECH_API_KEY", key),
+}
+
+app.use('/static', express.static('client/static'));
+app.get('/', (req, res) => res.send(pages.room));
+
+app.listen(3000, () => console.log('App listening on port 3000!'));
