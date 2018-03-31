@@ -59,15 +59,6 @@
                 </td>
             </tr>
             <tr>
-                <td align="right">Format:</td>
-                <td align="left">
-                    <select id="formatOptions">
-                        <option value="Simple" selected="selected">Simple Result</option>
-                        <option value="Detailed">Detailed Result</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
                 <td></td>
                 <td>
                     <button id="startBtn" disabled="disabled">Start</button>
@@ -241,7 +232,7 @@
     <!-- Browser Hooks -->
     <script>
         var startBtn, stopBtn, hypothesisDiv, phraseDiv, statusDiv;
-        var key, languageOptions, formatOptions;
+        var key, languageOptions;
         var SDK;
         var recognizer;
         var previousSubscriptionKey;
@@ -254,17 +245,15 @@
             hypothesisDiv = document.getElementById("hypothesisDiv");
             statusDiv = document.getElementById("statusDiv");
             key = document.getElementById("key");
-            languageOptions = document.getElementById("languageOptions");
-            formatOptions = document.getElementById("formatOptions");
+            languageOptions = document.getElementById("languageOptions");;
 
             languageOptions.addEventListener("change", Setup);
-            formatOptions.addEventListener("change", Setup);
 
             startBtn.addEventListener("click", function () {
-                if (key.value == "" || key.value == "YOUR_BING_SPEECH_API_KEY") {
+                /*if (key.value == "" || key.value == "YOUR_BING_SPEECH_API_KEY") {
                     alert("Please enter your Bing Speech subscription key!");
                     return;
-                }
+                }*/
 
                 if (!recognizer || previousSubscriptionKey != key.value) {
                     previousSubscriptionKey = key.value;
@@ -278,7 +267,7 @@
                 stopBtn.disabled = false;
             });
 
-            key.addEventListener("focus", function () {
+            /*key.addEventListener("focus", function () {
                if (key.value == "YOUR_BING_SPEECH_API_KEY") {
                    key.value = "";
                }
@@ -288,7 +277,7 @@
                if (key.value == "") {
                    key.value = "YOUR_BING_SPEECH_API_KEY";
                }
-            });
+            });*/
 
             stopBtn.addEventListener("click", function () {
                 RecognizerStop(SDK, recognizer);
@@ -306,7 +295,7 @@
             if (recognizer != null) {
                 RecognizerStop(SDK, recognizer);
             }
-            recognizer = RecognizerSetup(SDK, null, languageOptions.value, SDK.SpeechResultFormat[formatOptions.value], key.value);
+            recognizer = RecognizerSetup(SDK, null, languageOptions.value, SDK.SpeechResultFormat["Simple"], key.value);
         }
 
         function UpdateStatus(status) {
