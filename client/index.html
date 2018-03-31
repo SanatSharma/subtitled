@@ -53,8 +53,7 @@
             <img src="/static/mic_black.png" class="mic center" id="mic_black" />
             <img src="/static/mic_red.png" class="mic center" id="mic_red" style="display: none"/>
         </div>
-        <button id="startBtn" disabled="disabled">Start</button>
-        <button id="stopBtn" disabled="disabled">Stop</button>
+
         <div>
             <div>Status: <span id="statusDiv">Ready</span></div>
             <div>Results: <textarea id="phraseDiv" style="display: inline-block;width:500px;height:200px"></textarea></div>
@@ -253,7 +252,7 @@
 
     <!-- Browser Hooks -->
     <script>
-        var startBtn, stopBtn, hypothesisDiv, phraseDiv, statusDiv;
+        var hypothesisDiv, phraseDiv, statusDiv;
         var key, languageOptions;
         var SDK;
         var recognizer;
@@ -262,8 +261,6 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             createBtn = document.getElementById("createBtn");
-            startBtn = document.getElementById("startBtn");
-            stopBtn = document.getElementById("stopBtn");
             phraseDiv = document.getElementById("phraseDiv");
             hypothesisDiv = document.getElementById("hypothesisDiv");
             statusDiv = document.getElementById("statusDiv");
@@ -295,24 +292,6 @@
                 mic_black.style.display = "block";
             });
 
-            startBtn.addEventListener("click", function () {
-                /*if (key.value == "" || key.value == "YOUR_BING_SPEECH_API_KEY") {
-                    alert("Please enter your Bing Speech subscription key!");
-                    return;
-                }*/
-
-                if (!recognizer || previousSubscriptionKey != key.value) {
-                    previousSubscriptionKey = key.value;
-                    Setup();
-                }
-
-                hypothesisDiv.innerHTML = "";
-                phraseDiv.innerHTML = "";
-                RecognizerStart(SDK, recognizer);
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-            });
-
             /*key.addEventListener("focus", function () {
                if (key.value == "YOUR_BING_SPEECH_API_KEY") {
                    key.value = "";
@@ -325,15 +304,8 @@
                }
             });*/
 
-            stopBtn.addEventListener("click", function () {
-                RecognizerStop(SDK, recognizer);
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-            });
-
             Initialize(function (speechSdk) {
                 SDK = speechSdk;
-                startBtn.disabled = false;
             });
         });
 
@@ -368,8 +340,8 @@
         }
 
         function OnComplete() {
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
+            // startBtn.disabled = false;
+            // stopBtn.disabled = true;
         }
     </script>
 
