@@ -407,7 +407,8 @@
                 var data = JSON.parse(input.data)
                 console.log(data)
 
-                UpdateRecognizedPhrase(data['data']);
+                //UpdateRecognizedPhrase(data['data']);
+                OutputHandler.addSubtitleLine(data['data']);
             }
         }
         else{
