@@ -3,7 +3,7 @@
 <head>
     <title>Speech Sample</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="./static/style.css">
 </head>
 <body>
     <div id="warning">
@@ -17,8 +17,8 @@
         <input id="key" type="text" size="40" value="YOUR_BING_SPEECH_API_KEY" style="display:none">
         
         <div class"center">
-            <img src="/static/mic_black.png" class="mic center" id="mic_black" />
-            <img src="/static/mic_red.png" class="mic center" id="mic_red" style="display: none"/>
+            <img src="./static/mic_black.png" class="mic center" id="mic_black" />
+            <img src="./static/mic_red.png" class="mic center" id="mic_red" style="display: none"/>
         </div>
 
         <div>
@@ -114,7 +114,7 @@
 
     </div>
     <!-- SDK REFERENCE -->
-    <script src="/static/speech-sdk.js"></script>
+    <script src="./static/speech-sdk.js"></script>
 
     <!-- SDK USAGE -->
     <script>
@@ -352,9 +352,15 @@
 
     
     <script>
+        var Profile;
+        (function (Profile) {
+            Profile["LEADER"] = "leader";
+            Profile["MEMBER"] = "member";
+        })(Profile || (Profile = {}));
+
         // token to decide leader vs member
-        const TOKEN = "leader"; //change this
-        const PROD_URI = "ws://ec2-18-188-189-111.us-east-2.compute.amazonaws.com:2000"; //aws url
+        const TOKEN = Profile.MEMBER; //change this
+        const PROD_URI = "ws://localhost:7000";//"ws://ec2-18-188-189-111.us-east-2.compute.amazonaws.com:2000"; //aws url
         var statusBar = document.getElementById("statusBar");
         const SESSION = '1';
 

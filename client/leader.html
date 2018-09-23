@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech Sample</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="./static/style.css">
+</head>
+<body>
+    <div id="warning">
+        <h1 style="font-weight:500;">Loading...</h1>
+    </div>
+    <div class="center">
+        <p id="statusBar">Connecting....</p> 
+        <h1>Welcome to Subtitled</h1>
+    </div>
+    <div id="content" style="display:none">
+        <input id="key" type="text" size="40" value="YOUR_BING_SPEECH_API_KEY" style="display:none">
+        
+        <div class"center">
+            <img src="./static/mic_black.png" class="mic center" id="mic_black" />
+            <img src="./static/mic_red.png" class="mic center" id="mic_red" style="display: none"/>
+        </div>
+
+        <div>
+            <div style="margin: .5rem 0;">
+            <div class="center"><b>Status:</b><span id="statusDiv">Ready</span> 
+                <select id="languageOptions">
+                    <option value="ar-EG">Arabic - EG</option>
+                    <option value="ca-ES">Catalan - ES</option>
+                    <option value="da-DK">Danish - DK</option>
+                    <option value="da-DK">Danish - DK</option>
+                    <option value="de-DE">German - DE</option>
+                    <option value="en-AU">English - AU</option>
+                    <option value="en-CA">English - CA</option>
+                    <option value="en-GB">English - GB</option>
+                    <option value="en-IN">English - IN</option>
+                    <option value="en-NZ">English - NZ</option>
+                    <option value="zh-CN">Chinese - CN</option>
+                    <option value="en-US" selected="selected">English - US</option>
+                    <option value="es-ES">Spanish - ES</option>
+                    <option value="es-MX">Spanish - MX</option>
+                    <option value="fi-FI">Finnish - FI</option>
+                    <option value="fr-CA">French - CA</option>
+                    <option value="fr-FR">French - FR</option>
+                    <option value="hi-IN">Hindi - IN</option>
+                    <option value="it-IT">Italian - IT</option>
+                    <option value="ja-JP">Japanese - JP</option>
+                    <option value="ko-KR">Korean - KR</option>
+                    <option value="nb-NO">Norwegian - NO</option>
+                    <option value="nl-NL">Dutch - NL</option>
+                    <option value="pl-PL">Polish - PL</option>
+                    <option value="pt-BR">Portuguese - BR</option>
+                    <option value="pt-PT">Portuguese - PT</option>
+                    <option value="ru-RU">Russian - RU</option>
+                    <option value="sv-SE">Swedish - SE</option>
+                    <option value="zh-CN">Chinese - CN</option>
+                    <option value="zh-HK">Chinese - HK</option>
+                    <option value="zh-TW">Chinese - TW</option>
+                </select>
+            </div>
+            </div>
+            <div style="display: none">
+                <div>Results: <textarea id="phraseDiv" style="display: inline-block;width:500px;height:200px"></textarea></div>
+                <div>Hypothesis: <span id="hypothesisDiv"></span></div>
+            </div>
+        </div>
+
+        <div id="output"></div>
+        <div id="hypothesis"></div>
+        <script>
+            var OutputHandler = {};
+            OutputHandler.outputTarget = document.getElementById("output");
+            OutputHandler.hypothesisTarget = document.getElementById("hypothesis");
+
+            OutputHandler.buildSubtitleNode = function(text) {
+                var node = document.createElement("div");
+                node.classList.add("subtitle-node");
+                node.textContent = text;
+                return node;
+            }
+
+            OutputHandler.addSubtitleLine = function(text) {
+                if (text) {
+                    OutputHandler.outputTarget.appendChild(OutputHandler.buildSubtitleNode(text));
+                }
+            }
+
+            OutputHandler.appendHypothesis = function(text) {
+                if (OutputHandler.hypothesisTarget.children.length === 0) {
+                    var node = OutputHandler.buildSubtitleNode("");
+                    OutputHandler.hypothesisTarget.innerHTML = "";
+                    node.classList.add("subtitle-node-hypothesis");
+                    OutputHandler.hypothesisTarget.appendChild(node);
+                }
+
+                var oldNode = OutputHandler.hypothesisTarget.children[0];
+                var oldText = oldNode.textContent;
+
+                if (oldText === "")
+                    oldNode.textContent = text;
+                else
+                    oldNode.textContent += " " + text;
+            }
+
+            OutputHandler.resetHypothesis = function() {
+                OutputHandler.hypothesisTarget.innerHTML = "";
+            }
+
+            /*addSubtitleLine("Helllo world");
+            addSubtitleLine("this is the end of the world");
+            addSubtitleLine("Goodbye world");
+            addSubtitleLine("This is a very long line compared to the others. Maybe the speaker is having a monologue.");*/
+        </script>
+
+    </div>
+    <!-- SDK REFERENCE -->
+    <script src="./static/speech-sdk.js"></script>
+
+    <!-- SDK USAGE -->
+    <script>
+        // On document load resolve the SDK dependency
+        function Initialize(onComplete) {
+            if (!!window.SDK) {
+                document.getElementById('content').style.display = 'block';
+                document.getElementById('warning').style.display = 'none';
+                onComplete(window.SDK);
+            }
+        }
+        
+        // Setup the recognizer
+        function RecognizerSetup(SDK, recognitionMode, language, format, subscriptionKey) {
+            recognitionMode = SDK.RecognitionMode.Dictation;
+            /*
+            switch (recognitionMode) {
+                case "Interactive" :
+                    recognitionMode = SDK.RecognitionMode.Interactive;    
+                    break;
+                case "Conversation" :
+                    recognitionMode = SDK.RecognitionMode.Conversation;    
+                    break;
+                case "Dictation" :
+                    recognitionMode = SDK.RecognitionMode.Dictation;    
+                    break;
+                default:
+                    recognitionMode = SDK.RecognitionMode.Interactive;
+            }*/
+
+            var recognizerConfig = new SDK.RecognizerConfig(
+                new SDK.SpeechConfig(
+                    new SDK.Context(
+                        new SDK.OS(navigator.userAgent, "Browser", null),
+                        new SDK.Device("SpeechSample", "SpeechSample", "1.0.00000"))),
+                recognitionMode,
+                language, // Supported languages are specific to each recognition mode. Refer to docs.
+                format); // SDK.SpeechResultFormat.Simple (Options - Simple/Detailed)
+
+
+            var useTokenAuth = false;
+            
+            var authentication = function() {
+                if (!useTokenAuth)
+                    return new SDK.CognitiveSubscriptionKeyAuthentication(subscriptionKey);
+
+                var callback = function() {
+                    var tokenDeferral = new SDK.Deferred();
+                    try {
+                        var xhr = new(XMLHttpRequest || ActiveXObject)('MSXML2.XMLHTTP.3.0');
+                        xhr.open('GET', '/token', 1);
+                        xhr.onload = function () {
+                            if (xhr.status === 200)  {
+                                tokenDeferral.Resolve(xhr.responseText);
+                            } else {
+                                tokenDeferral.Reject('Issue token request failed.');
+                            }
+                        };
+                        xhr.send();
+                    } catch (e) {
+                        window.console && console.log(e);
+                        tokenDeferral.Reject(e.message);
+                    }
+                    return tokenDeferral.Promise();
+                }
+
+                return new SDK.CognitiveTokenAuthentication(callback, callback);
+            }();
+
+            return SDK.CreateRecognizer(recognizerConfig, authentication);
+        }
+
+        // Start the recognition
+        function RecognizerStart(SDK, recognizer) {
+            recognizer.Recognize((event) => {
+                /*
+                 Alternative syntax for typescript devs.
+                 if (event instanceof SDK.RecognitionTriggeredEvent)
+                */
+                switch (event.Name) {
+                    case "RecognitionTriggeredEvent" :
+                        UpdateStatus("Initializing");
+                        break;
+                    case "ListeningStartedEvent" :
+                        UpdateStatus("Listening");
+                        break;
+                    case "RecognitionStartedEvent" :
+                        UpdateStatus("Listening_Recognizing");
+                        break;
+                    case "SpeechStartDetectedEvent" :
+                        UpdateStatus("Listening_DetectedSpeech_Recognizing");
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        break;
+                    case "SpeechHypothesisEvent" :
+                        UpdateRecognizedHypothesis(event.Result.Text, false);
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        break;
+                    case "SpeechFragmentEvent" :
+                        UpdateRecognizedHypothesis(event.Result.Text, true);
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        break;
+                    case "SpeechEndDetectedEvent" :
+                        OnSpeechEndDetected();
+                        UpdateStatus("Processing_Adding_Final_Touches");
+                        //console.log(JSON.stringify(event.Result)); // check console for other information in result
+                        break;
+                    case "SpeechSimplePhraseEvent" :
+                        UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
+                        sendResult(JSON.stringify(event.Result, null, 3))
+                        break;
+                    case "SpeechDetailedPhraseEvent" :
+                        UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
+                        sendResult(JSON.stringify(event.Result, null, 3))
+                        break;
+                    case "RecognitionEndedEvent" :
+                        OnComplete();
+                        UpdateStatus("Idle");
+                        //console.log(JSON.stringify(event)); // Debug information
+                        break;
+                    default:
+                        //console.log(JSON.stringify(event)); // Debug information
+                }
+            })
+            .On(() => {
+                // The request succeeded. Nothing to do here.
+            },
+            (error) => {
+                console.error(error);
+            });
+        }
+
+        // Stop the Recognition.
+        function RecognizerStop(SDK, recognizer) {
+            // recognizer.AudioSource.Detach(audioNodeId) can be also used here. (audioNodeId is part of ListeningStartedEvent)
+            recognizer.AudioSource.TurnOff();
+        }
+
+        
+    </script>
+
+    <!-- Browser Hooks -->
+    <script>
+        var hypothesisDiv, phraseDiv, statusDiv;
+        var key, languageOptions;
+        var SDK;
+        var recognizer;
+        var previousSubscriptionKey;
+        var mic_black, mic_red;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            createBtn = document.getElementById("createBtn");
+            phraseDiv = document.getElementById("phraseDiv");
+            hypothesisDiv = document.getElementById("hypothesisDiv");
+            statusDiv = document.getElementById("statusDiv");
+            key = document.getElementById("key");
+            languageOptions = document.getElementById("languageOptions");;
+
+            languageOptions.addEventListener("change", Setup);
+
+            mic_black = document.getElementById("mic_black");
+            mic_red = document.getElementById("mic_red");
+
+            mic_black.addEventListener("click", function () {
+                if (!recognizer || previousSubscriptionKey != key.value) {
+                    previousSubscriptionKey = key.value;
+                    Setup();
+                }
+
+                hypothesisDiv.innerHTML = "";
+                phraseDiv.innerHTML = "";
+                RecognizerStart(SDK, recognizer);
+
+                mic_black.style.display = "none";
+                mic_red.style.display = "block";
+            });
+
+            mic_red.addEventListener("click", function () {
+                RecognizerStop(SDK, recognizer);
+                mic_red.style.display = "none";
+                mic_black.style.display = "block";
+            });
+
+            /*key.addEventListener("focus", function () {
+               if (key.value == "YOUR_BING_SPEECH_API_KEY") {
+                   key.value = "";
+               }
+            });
+
+            key.addEventListener("focusout", function () {
+               if (key.value == "") {
+                   key.value = "YOUR_BING_SPEECH_API_KEY";
+               }
+            });*/
+
+            Initialize(function (speechSdk) {
+                SDK = speechSdk;
+            });
+        });
+
+        function Setup() {
+            if (recognizer != null) {
+                RecognizerStop(SDK, recognizer);
+            }
+            recognizer = RecognizerSetup(SDK, null, languageOptions.value, SDK.SpeechResultFormat["Simple"], key.value);
+        }
+
+        function UpdateStatus(status) {
+            statusDiv.innerHTML = status;
+        }
+
+        function UpdateRecognizedHypothesis(text, append) {
+            if (!append)
+                OutputHandler.resetHypothesis();
+
+            OutputHandler.appendHypothesis(text);
+        }
+
+        function OnSpeechEndDetected() {
+            //stopBtn.disabled = true;
+        }
+
+        function UpdateRecognizedPhrase(json) {
+            OutputHandler.resetHypothesis();
+            phraseDiv.innerHTML += json + "\n";
+
+            var textObj = JSON.parse(json);
+            OutputHandler.addSubtitleLine(textObj["DisplayText"]);
+        }
+
+        function OnComplete() {
+            // startBtn.disabled = false;
+            // stopBtn.disabled = true;
+        }
+    </script>
+
+    
+    <script>
+        var Profile;
+        (function (Profile) {
+            Profile["LEADER"] = "leader";
+            Profile["MEMBER"] = "member";
+        })(Profile || (Profile = {}));
+
+        // token to decide leader vs member
+        const TOKEN = Profile.LEADER; //change this
+        const PROD_URI = "ws://localhost:7000";//"ws://ec2-18-188-189-111.us-east-2.compute.amazonaws.com:2000"; //aws url
+        var statusBar = document.getElementById("statusBar");
+        const SESSION = '1';
+
+
+        var ws;
+
+        var token = TOKEN;
+    //     ws = new WebSocket(PROD_URI)
+
+        ws = new WebSocket(PROD_URI);
+        if(token == "leader"){ //change this
+            
+            ws.onerror = function(e){
+                alert("Could not connect to server");
+            }
+            
+            ws.onopen = function(e) {
+                console.log("Connected with web socket!");
+                ws.send(JSON.stringify({
+                    session: SESSION,
+                    type: "leader_add",
+                }));
+                statusBar.textContent = "Connected!";
+            }
+
+            ws.onclose = function(e){
+                statusBar.textContent = "Disconnected!";
+            }
+                
+        }
+        else if(token == "member"){
+            ws.onerror = function(e){
+                alert("Could not connect to server");
+            }
+            
+            ws.onopen = function(e) {
+                ws.send(JSON.stringify({
+                    session: SESSION,
+                    type: "member_add",
+                }));
+                statusBar.textContent = "Connected!";
+            }
+
+            ws.onclose = function(e){
+                statusBar.textContent = "Disconnected!";
+            }
+
+            ws.onmessage = function ws_input(input){
+                console.log("Received a message - " + input);
+                var data = JSON.parse(input.data)
+                console.log(data)
+
+                //UpdateRecognizedPhrase(data['data']);
+                OutputHandler.addSubtitleLine(data['data']);
+            }
+        }
+        else{
+            console.log("There's something wrong");
+        }
+
+        function sendResult(data){
+            console.log("Sending result - " + data)
+            val = JSON.parse(data);
+        
+            ws.send(JSON.stringify({
+                "session": SESSION,
+                "type": "message",
+                "data": val['DisplayText']
+            }));
+        }
+    </script>
+
+</body>
+</html>
