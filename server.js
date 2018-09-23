@@ -7,7 +7,7 @@ const fs = require('fs');
     conn  = {session: [ws,ws,ws]}
     */
 
-const wss = new WebSocket.Server({port:2000});
+const wss = new WebSocket.Server({port:7000});
 var sessions = {};
 var conn = {};
 
