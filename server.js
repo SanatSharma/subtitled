@@ -119,7 +119,7 @@ var key = (function() {
 /* Express */
 const app = express();
 const pages = {
-    room: fs.readFileSync(__dirname + '/client/index.html', 'utf8')
+    room: fs.readFileSync(__dirname + '/client/leader.html', 'utf8')
         .replace("YOUR_BING_SPEECH_API_KEY", key),
 }
 
