@@ -4,5 +4,19 @@ Subtitled is a web app that helps provide live subtitles for any meeting or lect
 
 The service currently uses the Bing Speech API, to make project work:
   1) Host server.js
-  2) In Client/index.html, add your BING_SPEECH_KEY, and change ws variable to point to your server location
-  3) Do the same with The Leader index.html, provided in Leader branch.
+  2) Create a speech.key file with your Bing Speech Key
+  
+# How to Run (on local computer)
+
+Download packages
+```
+npm install
+```
+
+Run server
+```
+node server.js
+```
+
+To start leader page, go to localhost:3000
+Open member.html in a browser, now anything spoken in the leader.html should be live transcripted and shown on member.html
