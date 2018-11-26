@@ -8,6 +8,11 @@ The service currently uses the Bing Speech API, to make project work:
   
 # How to Run (on local computer)
 
+```
+Create speech.key file with Bing Speech API key
+```
+This can be created at https://azure.microsoft.com/en-us/services/cognitive-services/speech/
+
 Download packages
 ```
 npm install
